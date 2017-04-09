@@ -32,6 +32,9 @@ public class DeviceServer {
 		
 		Map<String, Object> oPropertyMap = new HashMap<>();
 		oPropertyMap.put("deviceID", serverPort);
+		oPropertyMap.put("percentBusy", 35);
+		oPropertyMap.put("percentReady", 60);
+		oPropertyMap.put("percentNoResponse", 5);
 		
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.packages(IoTDevice.class.getPackage().getName());
