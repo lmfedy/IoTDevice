@@ -1,4 +1,4 @@
-package nku.edu.device.server;
+package edu.nku.device.server;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
