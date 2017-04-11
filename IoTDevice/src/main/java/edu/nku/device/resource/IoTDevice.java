@@ -57,7 +57,6 @@ public class IoTDevice {
 		    // % Ready
 			oResult.setStatus("Ready");
 		}
-
 		
 		return oResult;
 	}
