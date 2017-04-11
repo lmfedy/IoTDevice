@@ -1,16 +1,13 @@
 package edu.nku.device.resource;
 
-import edu.nku.device.utility.DataUtility;
-
-public class DeviceMetadataResult extends Result {
-
+public class IoTDeviceModel {
 	private String deviceId;
 	private String vendor;
 	private String productName;
 	private Boolean encryptionEnabled;
-	private int modelId;
 	private int firmwareVersion;
-	
+	private int modelId;
+
 	public int getModelId() {
 		return modelId;
 	}
@@ -19,34 +16,16 @@ public class DeviceMetadataResult extends Result {
 		this.modelId = modelId;
 	}
 
-	public int getFirmwareVersion() {
-		return firmwareVersion;
-	}
-
-	public void setFirmwareVersion(int firmwareVersion) {
-		this.firmwareVersion = firmwareVersion;
-	}
-
-	public DeviceMetadataResult(String pAction) {
-		super(pAction);
-	}
-	
-	public void setViaModel(IoTDeviceModel pModel)
-	{
-		deviceId = pModel.getDeviceId();
-		vendor = pModel.getVendor();
-		productName = pModel.getProductName();
-		encryptionEnabled = pModel.getEncryptionEnabled();
-		modelId = pModel.getModelId();
-		firmwareVersion = pModel.getFirmwareVersion();		
+	public IoTDeviceModel(String deviceId) {
+		this.deviceId = deviceId;
 	}
 
 	public String getDeviceId() {
 		return deviceId;
 	}
 
-	public void setDeviceId(String deviceID) {
-		this.deviceId = deviceID;
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 
 	public String getVendor() {
@@ -71,6 +50,14 @@ public class DeviceMetadataResult extends Result {
 
 	public void setEncryptionEnabled(Boolean encryptionEnabled) {
 		this.encryptionEnabled = encryptionEnabled;
+	}
+
+	public int getFirmwareVersion() {
+		return firmwareVersion;
+	}
+
+	public void setFirmwareVersion(int firmwareVersion) {
+		this.firmwareVersion = firmwareVersion;
 	}
 
 }

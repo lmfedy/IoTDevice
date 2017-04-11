@@ -14,16 +14,20 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import edu.nku.device.resource.IoTDevice;
+import edu.nku.device.resource.IoTDeviceModel;
 import edu.nku.device.utility.CryptoUtility;
 import edu.nku.device.utility.DataUtility;
 import edu.nku.device.utility.ServiceLogger;
 
 public class DeviceServer {
 	private static final int DEFAULT_PORT = 8081;
+	private static final int DEFAULT_VENDORS = 1;
 	private int serverPort;
+	private int numberVendors;
 
-	public DeviceServer(int serverPort) throws Exception {
+	public DeviceServer(int serverPort, int numberVendors) throws Exception {
 		this.serverPort = serverPort;
+		this.numberVendors = numberVendors;
 
 		Server server = configureServer();
 		server.start();
@@ -36,21 +40,39 @@ public class DeviceServer {
 		DataUtility data = DataUtility.getInstance();
 		CryptoUtility crypto = new CryptoUtility(data, logger);
 
+		IoTDeviceModel device = new IoTDeviceModel(serverPort + "");
+
 		// Randomize Encryption Enabled
 		Random rand = new Random();
 		int result = rand.nextInt(100);
 		boolean encryptionEnabled = result % 2 == 0;
-		
+		device.setEncryptionEnabled(encryptionEnabled);
+
 		// Randomize Device Vendor (Ports Firmware Sites are running on)
-		
+		result = rand.nextInt(numberVendors);
+		device.setVendor((8080 + result) + "");
+
 		// Randomize Device Model (1-10)
-		
+		result = rand.nextInt(100);
+		device.setModelId(result % 10);
+
 		// Randomize Current Firmware Version (1-50??)
-		
-		// TODO: Store Values in Database: Device ID = serverPort
+		result = rand.nextInt(25);
+		device.setFirmwareVersion(result);
+
+		result = rand.nextInt(26);
+		String productSuffix = String.valueOf((char) (result + 64));
+		result = rand.nextInt(26);
+		productSuffix += String.valueOf((char) (result + 64));
+		result = rand.nextInt(26);
+		productSuffix += String.valueOf((char) (result + 64));
+
+		device.setProductName("Device_" + productSuffix);
+
+		data.storeDeviceMetadata(device);
 
 		Map<String, Object> oPropertyMap = new HashMap<>();
-		oPropertyMap.put("deviceID", serverPort);
+		oPropertyMap.put("deviceId", serverPort);
 		oPropertyMap.put("percentBusy", 35);
 		oPropertyMap.put("percentReady", 60);
 		oPropertyMap.put("percentNoResponse", 5);
@@ -73,16 +95,27 @@ public class DeviceServer {
 
 	public static void main(String[] args) throws Exception {
 		int serverPort = DEFAULT_PORT;
-		
-		if (args.length >= 1) {
+		int numberVendors = DEFAULT_VENDORS;
+
+		switch (args.length) {
+		case 1:
 			try {
 				serverPort = Integer.parseInt(args[0]);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
+			break;
+		case 2:
+			try {
+				serverPort = Integer.parseInt(args[0]);
+				numberVendors = Integer.parseInt(args[1]);
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+			break;
 		}
 
-		new DeviceServer(serverPort);
+		new DeviceServer(serverPort, numberVendors);
 	}
 
 }
