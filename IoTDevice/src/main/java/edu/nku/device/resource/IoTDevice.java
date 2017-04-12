@@ -21,6 +21,7 @@ import edu.nku.device.resource.response.DiscoveryResponse;
 import edu.nku.device.resource.response.Response;
 import edu.nku.device.utility.CryptoUtility;
 import edu.nku.device.utility.DataUtility;
+import edu.nku.device.utility.ServiceLogger;
 
 @Path("/device")
 public class IoTDevice {
@@ -31,11 +32,15 @@ public class IoTDevice {
 	@Path("/enroll")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String enrollDevice() {
+		ServiceLogger logger = ServiceLogger.getInstance();
 		String deviceNumber = appContext.getProperties().get("deviceId").toString();
+		logger.writeLog("Attempting to enroll device: " + deviceNumber);
 		DiscoveryResponse oResponse = new DiscoveryResponse("enroll");
 		DataUtility data = DataUtility.getInstance();
 		oResponse.setViaModel(data.getDeviceMetadata(deviceNumber));
+		
 		Gson gson = new Gson();
+		logger.writeLog("Enroll device: " + gson.toJson(oResponse));
 		return gson.toJson(oResponse, DiscoveryResponse.class);
 	}
 
