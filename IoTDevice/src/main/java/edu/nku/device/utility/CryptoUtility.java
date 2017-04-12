@@ -169,6 +169,24 @@ public class CryptoUtility {
 		return this.sPublicKey;
 	}
 	
+	public String encryptMessage(String message, PublicKey publicKey) {
+		try {
+			System.out.println(this.cipher);
+			this.cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+			try {
+				logger.writeLog("Crypto - beginning encryption.");
+				return Base64.encodeBase64String(cipher.doFinal(message.getBytes("UTF-8")));
+			} catch (IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
+				logger.writeLog("CryptoUtility.encryptMessage() - Failed to encode string.");
+				e.printStackTrace();
+			}
+		} catch (InvalidKeyException e) {
+			logger.writeLog("CryptoUtility.encryptMessage() - Failed to init cipher.");
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public String encryptMessage(String message) {
 		try {
 			System.out.println(this.cipher);

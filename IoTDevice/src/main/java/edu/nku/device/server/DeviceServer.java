@@ -68,6 +68,7 @@ public class DeviceServer {
 		productSuffix += String.valueOf((char) (result + 64));
 
 		device.setProductName("Device_" + productSuffix);
+		device.setAccessoryCode("1234-ABCD");
 
 		data.storeDeviceMetadata(device);
 

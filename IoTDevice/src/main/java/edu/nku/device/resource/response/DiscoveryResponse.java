@@ -1,9 +1,8 @@
 package edu.nku.device.resource.response;
 
 import edu.nku.device.resource.IoTDeviceModel;
-import edu.nku.device.resource.Result;
 
-public class DiscoveryResponse extends Result {
+public class DiscoveryResponse extends Response {
 	private String deviceId;
 	private String vendor;
 	private String productName;

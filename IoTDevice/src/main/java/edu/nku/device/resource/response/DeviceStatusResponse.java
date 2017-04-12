@@ -1,10 +1,9 @@
-package edu.nku.device.resource;
+package edu.nku.device.resource.response;
 
-public class DeviceStatusResult extends Result {
-
+public class DeviceStatusResponse extends Response {
 	private String deviceStatus;
 
-	public DeviceStatusResult(String pAction) {
+	public DeviceStatusResponse(String pAction) {
 		super(pAction);
 	}
 
