@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import edu.nku.device.resource.Result;
+import edu.nku.device.resource.response.DiscoveryResponse;
 import edu.nku.device.utility.DataUtility;
 
 @Path("/device")
@@ -23,7 +24,7 @@ public class IoTDevice {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Result enrollDevice() {
 		String deviceNumber = appContext.getProperties().get("deviceId").toString();
-		DeviceMetadataResult oResult = new DeviceMetadataResult("enroll");
+		DiscoveryResponse oResult = new DiscoveryResponse("enroll");
 		DataUtility data = DataUtility.getInstance();
 		oResult.setViaModel(data.getDeviceMetadata(deviceNumber));
 		return oResult;

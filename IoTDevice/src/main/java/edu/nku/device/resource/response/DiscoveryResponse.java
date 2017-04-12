@@ -1,42 +1,23 @@
-package edu.nku.device.resource;
+package edu.nku.device.resource.response;
 
-public class DeviceMetadataResult extends Result {
+import edu.nku.device.resource.IoTDeviceModel;
+import edu.nku.device.resource.Result;
 
+public class DiscoveryResponse extends Result {
 	private String deviceId;
 	private String vendor;
 	private String productName;
 	private Boolean encryptionEnabled;
-//	private int modelId;
-//	private int firmwareVersion;
-//	
-//	public int getModelId() {
-//		return modelId;
-//	}
-//
-//	public void setModelId(int modelId) {
-//		this.modelId = modelId;
-//	}
-//
-//	public int getFirmwareVersion() {
-//		return firmwareVersion;
-//	}
-//
-//	public void setFirmwareVersion(int firmwareVersion) {
-//		this.firmwareVersion = firmwareVersion;
-//	}
 
-	public DeviceMetadataResult(String pAction) {
+	public DiscoveryResponse(String pAction) {
 		super(pAction);
 	}
-	
-	public void setViaModel(IoTDeviceModel pModel)
-	{
+
+	public void setViaModel(IoTDeviceModel pModel) {
 		deviceId = pModel.getDeviceId();
 		vendor = pModel.getVendor();
 		productName = pModel.getProductName();
 		encryptionEnabled = pModel.getEncryptionEnabled();
-//		modelId = pModel.getModelId();
-//		firmwareVersion = pModel.getFirmwareVersion();		
 	}
 
 	public String getDeviceId() {
