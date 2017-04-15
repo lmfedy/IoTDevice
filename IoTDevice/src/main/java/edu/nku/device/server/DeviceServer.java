@@ -46,8 +46,8 @@ public class DeviceServer {
 		Random rand = new Random();
 		int result = rand.nextInt(100);
 		boolean encryptionEnabled = result % 2 == 0;
-//		device.setEncryptionEnabled(encryptionEnabled);
-		device.setEncryptionEnabled(true);
+		device.setEncryptionEnabled(encryptionEnabled);
+//		device.setEncryptionEnabled(true);
 
 		// Randomize Device Vendor (Ports Firmware Sites are running on)
 		result = rand.nextInt(numberVendors);

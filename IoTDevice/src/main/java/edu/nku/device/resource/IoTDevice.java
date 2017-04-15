@@ -62,9 +62,9 @@ public class IoTDevice {
 		CodeValidationResponse oResponse = new CodeValidationResponse("access");
 		if (!device.getAccessoryCode().equals(codePost.getAccessoryCode())) {
 			oResponse.setDeviceId(device.getDeviceId());
-			oResponse.setStatus(new StatusCode("ERROR", "Accessory Code Access Denied"));
+			oResponse.setStatus(new StatusCode("ERROR", "Accessory code not valid."));
 		} else {
-			oResponse.setStatus(new StatusCode("SUCCESS", "Accessory Code Accepted"));
+			oResponse.setStatus(new StatusCode("ACCEPTED", "Accessory Code Accepted"));
 			oResponse.setPublicKey(crypto.getPublicKeyString());
 			oResponse.setViaModel(device);
 		}
