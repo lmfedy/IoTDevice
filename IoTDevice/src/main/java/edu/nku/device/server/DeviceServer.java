@@ -20,7 +20,7 @@ import edu.nku.device.utility.DataUtility;
 import edu.nku.device.utility.ServiceLogger;
 
 public class DeviceServer {
-	private static final int DEFAULT_PORT = 8081;
+	private static final int DEFAULT_PORT = 8092;
 	private static final int DEFAULT_VENDORS = 1;
 	private int serverPort;
 	private int numberVendors;
@@ -46,7 +46,8 @@ public class DeviceServer {
 		Random rand = new Random();
 		int result = rand.nextInt(100);
 		boolean encryptionEnabled = result % 2 == 0;
-		device.setEncryptionEnabled(encryptionEnabled);
+//		device.setEncryptionEnabled(encryptionEnabled);
+		device.setEncryptionEnabled(true);
 
 		// Randomize Device Vendor (Ports Firmware Sites are running on)
 		result = rand.nextInt(numberVendors);
@@ -68,7 +69,6 @@ public class DeviceServer {
 		productSuffix += String.valueOf((char) (result + 64));
 
 		device.setProductName("Device_" + productSuffix);
-		device.setAccessoryCode("1234-ABCD");
 
 		data.storeDeviceMetadata(device);
 

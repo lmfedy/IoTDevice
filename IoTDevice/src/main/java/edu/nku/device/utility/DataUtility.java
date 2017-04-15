@@ -36,7 +36,7 @@ public class DataUtility {
 		return instance;
 	}
 
-	private void getConnection() {
+	public void getConnection() {
 		try {
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
@@ -52,7 +52,7 @@ public class DataUtility {
 		}
 	}
 
-	private void closeConnection() {
+	public void closeConnection() {
 		try {
 			this.conn.close();
 		} catch (SQLException e) {
@@ -68,6 +68,8 @@ public class DataUtility {
 	}
 
 	public void storeKeyPair(byte[] publicString, byte[] privateString) {
+		getConnection();
+		
 		String query = "INSERT INTO tblKeys (publicKey, privateKey) VALUES (?, ?)";
 		PreparedStatement state;
 		try {
@@ -79,10 +81,12 @@ public class DataUtility {
 			logger.writeLog("DataUtility.storeKeyPair() - Could not create prepared statement.");
 			e.printStackTrace();
 		}
+		closeConnection();
 	}
 
 	public byte[] retrievePublicKey() {
 		logger.writeLog("DataUtility.retrievePublicKey() - Beginning retrieval");
+		getConnection();
 		if (cachedPrivateKeyBytes == null || cachedPublicKeyBytes == null) {
 			String query = "SELECT publicKey FROM tblKeys";
 			PreparedStatement state;
@@ -93,6 +97,7 @@ public class DataUtility {
 				byte[] publicBytes = result.getBytes("publicKey");
 				cachedPublicKeyBytes = publicBytes;
 				logger.writeLog("Data - pub:" + publicBytes);
+				closeConnection();
 				return publicBytes;
 			} catch (SQLException e) {
 				logger.writeLog("DataUtility.retrievePublicKey() - Could not create prepared statement.");
@@ -100,13 +105,16 @@ public class DataUtility {
 			}
 		} else {
 			logger.writeLog("Data - already had cached keys");
+			closeConnection();
 			return cachedPublicKeyBytes;
 		}
+		closeConnection();
 		return null;
 	}
 
 	public byte[] retrievePrivateKey() {
 		logger.writeLog("DataUtility.retrievePrivateKey() - Beginning retrieval");
+		getConnection();
 		if (cachedPrivateKeyBytes == null || cachedPublicKeyBytes == null) {
 			String query = "SELECT privateKey FROM tblKeys";
 			PreparedStatement state;
@@ -117,6 +125,7 @@ public class DataUtility {
 				byte[] privateBytes = result.getBytes("privateKey");
 				cachedPrivateKeyBytes = privateBytes;
 				logger.writeLog("Data - pub:" + privateBytes);
+				closeConnection();
 				return privateBytes;
 			} catch (SQLException e) {
 				logger.writeLog("DataUtility.retrievePrivateKey() - Could not create prepared statement.");
@@ -124,8 +133,10 @@ public class DataUtility {
 			}
 		} else {
 			logger.writeLog("Data - already had cached keys");
+			closeConnection();
 			return cachedPrivateKeyBytes;
 		}
+		closeConnection();
 		return null;
 	}
 
@@ -134,7 +145,8 @@ public class DataUtility {
 		String sqlStatement = "SELECT * FROM tblDeviceInfo WHERE deviceId= ?";
 		PreparedStatement state;
 		ResultSet result;
-
+		
+		getConnection();
 		try {
 			state = this.conn.prepareStatement(sqlStatement);
 			state.setString(1, pDeviceId);
@@ -149,11 +161,12 @@ public class DataUtility {
 			logger.writeLog("DataUtility.getDeviceMetadata() - Could not create prepared statement.");
 			pException.printStackTrace();
 		}
-
+		closeConnection();
 		return deviceModel;
 	}
 
 	public void storeDeviceMetadata(IoTDeviceModel device) {
+		getConnection();
 		String sqlStatement = "UPDATE tblDeviceInfo SET vendor = ?, productName = ?, encryptionEnabled = ?, firmwareVersion = ?, modelId = ? WHERE deviceId = ?;";
 
 		PreparedStatement state;
@@ -183,6 +196,6 @@ public class DataUtility {
 			logger.writeLog("DataUtility.storeDeviceMetadata() - Could not create prepared statement.");
 			e.printStackTrace();
 		}
-
+		closeConnection();
 	}
 }

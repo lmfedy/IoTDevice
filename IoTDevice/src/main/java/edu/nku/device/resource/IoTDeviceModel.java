@@ -7,14 +7,10 @@ public class IoTDeviceModel {
 	private Boolean encryptionEnabled;
 	private int firmwareVersion;
 	private int modelId;
-	private String accessoryCode = "1234-ABCD";
+	private String accessoryCode = "ABCD-1234";
 
 	public String getAccessoryCode() {
-		return accessoryCode;
-	}
-
-	public void setAccessoryCode(String accessoryCode) {
-		this.accessoryCode = accessoryCode;
+		return "ABCD-1234";
 	}
 
 	public int getModelId() {

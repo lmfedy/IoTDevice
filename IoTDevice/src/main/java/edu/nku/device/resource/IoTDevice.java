@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 import com.google.gson.Gson;
 
 import edu.nku.device.resource.response.AccessoryCodePost;
-import edu.nku.device.resource.response.AccessoryCodeResponse;
+import edu.nku.device.resource.response.CodeValidationResponse;
 import edu.nku.device.resource.response.DeviceStatusResponse;
 import edu.nku.device.resource.response.DiscoveryResponse;
 import edu.nku.device.resource.response.Response;
@@ -38,40 +38,44 @@ public class IoTDevice {
 		DiscoveryResponse oResponse = new DiscoveryResponse("enroll");
 		DataUtility data = DataUtility.getInstance();
 		oResponse.setViaModel(data.getDeviceMetadata(deviceNumber));
-		
+		data.closeConnection();
+
 		Gson gson = new Gson();
 		logger.writeLog("Enroll device: " + gson.toJson(oResponse));
 		return gson.toJson(oResponse, DiscoveryResponse.class);
 	}
 
 	@POST
-	@Path("/access")
+	@Path("/codeValidation")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String getAccess(String pAccessCode) {
+		ServiceLogger logger = ServiceLogger.getInstance();
 		String deviceNumber = appContext.getProperties().get("deviceId").toString();
-		CryptoUtility crypto = (CryptoUtility) appContext.getProperties().get("CryptoUtility");
-
+		CryptoUtility crypto = new CryptoUtility();
+		logger.writeLog("Device: " + deviceNumber + ". Received Access Code: " + pAccessCode);
 		Gson gson = new Gson();
 		AccessoryCodePost codePost = gson.fromJson(pAccessCode, AccessoryCodePost.class);
 		DataUtility data = DataUtility.getInstance();
 		IoTDeviceModel device = data.getDeviceMetadata(deviceNumber);
+		data.closeConnection();
 
-		AccessoryCodeResponse oResponse = new AccessoryCodeResponse("access");
-		if (device.getAccessoryCode() != codePost.getAccessoryCode())
-			oResponse.setStatus("error");
-		else {
-			oResponse.setStatus("success");
+		CodeValidationResponse oResponse = new CodeValidationResponse("access");
+		if (!device.getAccessoryCode().equals(codePost.getAccessoryCode())) {
+			oResponse.setDeviceId(device.getDeviceId());
+			oResponse.setStatus(new StatusCode("ERROR", "Accessory Code Access Denied"));
+		} else {
+			oResponse.setStatus(new StatusCode("SUCCESS", "Accessory Code Accepted"));
 			oResponse.setPublicKey(crypto.getPublicKeyString());
 			oResponse.setViaModel(device);
 		}
 
-		String responseString = gson.toJson(oResponse, AccessoryCodeResponse.class);
+		String responseString = gson.toJson(oResponse, CodeValidationResponse.class);
 
-		if (device.getEncryptionEnabled() && oResponse.getStatus() != "error") {
-			responseString = crypto.encryptMessage(responseString,
-					crypto.inflatePublicKeyFromString(codePost.getPublicKey()));
+		if (device.getEncryptionEnabled() && !oResponse.getStatus().getStatus().equals("ERROR")) {
+			responseString = crypto.encryptMessage(responseString, crypto.inflatePublicKeyFromString(codePost.getPubkey()));
 		}
-
+        
+		logger.writeLog("Device to Service: " + responseString);
 		return responseString;
 	}
 

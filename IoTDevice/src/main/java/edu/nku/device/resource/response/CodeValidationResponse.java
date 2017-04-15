@@ -1,10 +1,11 @@
 package edu.nku.device.resource.response;
 
 import edu.nku.device.resource.IoTDeviceModel;
+import edu.nku.device.resource.StatusCode;
 
-public class AccessoryCodeResponse  extends Response{
+public class CodeValidationResponse  extends Response{
 
-	private String status;
+	private StatusCode status;
 	private String deviceId;
 	private int modelId;
 	private String publicKey;
@@ -58,15 +59,15 @@ public class AccessoryCodeResponse  extends Response{
 		this.type = type;
 	}
 
-	public String getStatus() {
+	public StatusCode getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(StatusCode status) {
 		this.status = status;
 	}
 
-	public AccessoryCodeResponse(String pAction) {
+	public CodeValidationResponse(String pAction) {
 		super(pAction);
 	}
 

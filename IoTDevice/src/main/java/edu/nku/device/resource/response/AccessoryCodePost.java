@@ -2,7 +2,7 @@ package edu.nku.device.resource.response;
 
 public class AccessoryCodePost {
 	private String accessoryCode;
-	private String publicKey;
+	private String pubkey;
 
 	public String getAccessoryCode() {
 		return accessoryCode;
@@ -12,11 +12,11 @@ public class AccessoryCodePost {
 		this.accessoryCode = accessoryCode;
 	}
 
-	public String getPublicKey() {
-		return publicKey;
+	public String getPubkey() {
+		return pubkey;
 	}
 
-	public void setPublicKey(String publicKey) {
-		this.publicKey = publicKey;
+	public void setPubkey(String pubkey) {
+		this.pubkey = pubkey;
 	}
 }
