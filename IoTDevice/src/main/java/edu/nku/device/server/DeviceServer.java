@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ShutdownHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -107,7 +110,13 @@ public class DeviceServer {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		context.addServlet(sh, "/*");
-		server.setHandler(context);
+		//server.setHandler(context);
+		
+		HandlerList handlers = new HandlerList();
+		handlers.setHandlers(new Handler[]
+		{ context, new ShutdownHandler("password", false, true) });
+		server.setHandler(handlers);
+		
 		return server;
 	}
 

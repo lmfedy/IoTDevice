@@ -1,15 +1,27 @@
 package edu.nku.device.resource;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.SocketException;
+import java.net.URL;
 import java.util.Random;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.AsyncInvoker;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 
 import com.google.gson.Gson;
 
@@ -28,6 +40,10 @@ import edu.nku.device.utility.ServiceLogger;
 public class IoTDevice {
 	@Context
 	private Application appContext;
+
+	private static String SERVER_ADDRESS = "http://localhost:7060/updateService/resumeUpdate/";
+	private static int GLOBAL_READ_TIMEOUT = 30000;
+	private static int GLOBAL_CONNECT_TIMEOUT = 10000;
 
 	// Discovery Service: Step 2 - Get Discovery Request message from middleware
 	// Return Discovery Response message
@@ -119,7 +135,7 @@ public class IoTDevice {
 		StatusCode updateStatus;
 		Random rand = new Random();
 		int result = rand.nextInt(100);
-		
+
 		// Success rate
 		if (result <= Integer.parseInt(appContext.getProperties().get("updateSuccess").toString()))
 			updateStatus = new StatusCode("COMPLETE", "Update Complete");
@@ -144,9 +160,9 @@ public class IoTDevice {
 	@Path("/status")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getDeviceStatus() {
-		int iPercentBusy = (int) appContext.getProperties().get("percentBusy");
-		int iPercentReady = (int) appContext.getProperties().get("percentReady");
-		int iPercentNoResponse = (int) appContext.getProperties().get("percentNoResponse");
+		int iPercentBusy = Integer.parseInt(appContext.getProperties().get("percentBusy").toString());
+		int iPercentReady = Integer.parseInt(appContext.getProperties().get("percentReady").toString());
+		int iPercentNoResponse = Integer.parseInt(appContext.getProperties().get("percentNoResponse").toString());
 
 		DeviceStatusResponse oResponse = new DeviceStatusResponse("status");
 
@@ -155,12 +171,56 @@ public class IoTDevice {
 		if (result < iPercentBusy) {
 			// % Busy
 			oResponse.setStatus("Busy");
+			waitForReady(appContext.getProperties().get("deviceId").toString());
 		} else if (result >= iPercentBusy && result < (iPercentReady + iPercentBusy)) {
 			// % Ready
 			oResponse.setStatus("Ready");
 		}
 
 		return oResponse;
+	}
+
+	public void waitForReady(String id) {
+		ServiceLogger logger = ServiceLogger.getInstance();
+		new Thread() {
+			@Override
+			public void run() {
+				logger.writeLog("Thread Sleep - Waiting for Ready status");
+				try {
+					Random rand = new Random();
+					Thread.sleep(rand.nextInt(10) * 1000);
+					String serverAddress = SERVER_ADDRESS + id;
+
+					ClientConfig configuration = new ClientConfig();
+					configuration.property(ClientProperties.CONNECT_TIMEOUT, GLOBAL_CONNECT_TIMEOUT);
+					configuration.property(ClientProperties.READ_TIMEOUT, GLOBAL_READ_TIMEOUT);
+					Client client = ClientBuilder.newClient(configuration);
+					final AsyncInvoker asyncInvoker = client.target(serverAddress).request(MediaType.APPLICATION_JSON)
+							.async();
+					final Future<javax.ws.rs.core.Response> responseFuture = asyncInvoker
+							.get(new InvocationCallback<javax.ws.rs.core.Response>() {
+						@Override
+						public void completed(javax.ws.rs.core.Response response) {
+							if (response.getStatus() != 200) {
+								logger.writeLog("Resume update call failed with status code " + response.getStatus());
+							} else {
+								logger.writeLog("Resume update call success");
+							}
+						}
+
+						@Override
+						public void failed(Throwable throwable) {
+							logger.writeLog("Resume update call failed with exception: " + throwable.getMessage());
+							throwable.printStackTrace();
+						}
+
+					});
+				} catch (Exception e) {
+					logger.writeLog("Error - waitForReady thread");
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 }
