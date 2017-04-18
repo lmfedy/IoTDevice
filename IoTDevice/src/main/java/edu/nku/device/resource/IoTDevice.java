@@ -48,7 +48,8 @@ public class IoTDevice {
 		return gson.toJson(oResponse, DiscoveryResponse.class);
 	}
 
-	// Discovery Service: Step 5 - Get accessory code from middleware. Verify against pre-existing key.
+	// Discovery Service: Step 5 - Get accessory code from middleware. Verify
+	// against pre-existing key.
 	// Return Code Validation Response with status
 	@POST
 	@Path("/codeValidation")
@@ -77,25 +78,26 @@ public class IoTDevice {
 		String responseString = gson.toJson(oResponse, CodeValidationResponse.class);
 
 		if (device.getEncryptionEnabled() && !oResponse.getStatus().getStatus().equals("ERROR")) {
-			responseString = crypto.encryptMessage(responseString, crypto.inflatePublicKeyFromString(codePost.getPubkey()));
+			responseString = crypto.encryptMessage(responseString,
+					crypto.inflatePublicKeyFromString(codePost.getPubkey()));
 		}
-        
+
 		logger.writeLog("Device to Service: " + responseString);
 		return responseString;
 	}
-	
+
 	// Firmware Distribution: Step 5a Payload with update package
 	// Respond with Update Completion Status
 	@POST
 	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String postUpdatePackage(String pPackage){
+	public String postUpdatePackage(String pPackage) {
 		ServiceLogger logger = ServiceLogger.getInstance();
 		String deviceNumber = appContext.getProperties().get("deviceId").toString();
 		CryptoUtility crypto = new CryptoUtility();
 		logger.writeLog("Device: " + deviceNumber + ". Received Update Package: " + pPackage);
-		
-		if(!pPackage.startsWith("{")){
+
+		if (!pPackage.startsWith("{")) {
 			try {
 				pPackage = crypto.decryptMessage(pPackage);
 			} catch (Exception e) {
@@ -104,21 +106,34 @@ public class IoTDevice {
 		}
 		Gson gson = new Gson();
 		UpdatePackagePayload oUpdatePackage = gson.fromJson(pPackage, UpdatePackagePayload.class);
-		
+
 		DataUtility data = DataUtility.getInstance();
 		IoTDeviceModel device = data.getDeviceMetadata(deviceNumber);
 		data.closeConnection();
 
 		UpdateSuccessResponse oResponse = new UpdateSuccessResponse("updateStatus");
+		oResponse.setFirmwareVersion(oUpdatePackage.getVersion());
+		oResponse.setDeviceId(deviceNumber);
+		oResponse.setModelId(device.getModelId());
+
+		StatusCode updateStatus;
+		Random rand = new Random();
+		int result = rand.nextInt(100);
 		
-		// TODO: Set Update Success Response values
+		 // 85% success rate
+		if (result <= 85)
+			updateStatus = new StatusCode("COMPLETE", "Update Complete");
+		else
+			updateStatus = new StatusCode("ERROR", "Update Failed");
+
+		oResponse.setUpdateStatus(updateStatus);
 
 		String responseString = gson.toJson(oResponse, CodeValidationResponse.class);
 
 		if (device.getEncryptionEnabled()) {
 			responseString = crypto.encryptMessage(responseString);
 		}
-        
+
 		logger.writeLog("Device to Service: " + responseString);
 		return responseString;
 	}

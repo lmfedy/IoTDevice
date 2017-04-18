@@ -7,7 +7,7 @@ public class UpdateSuccessResponse extends Response {
 	private String firmwareVersion;
 	private StatusCode updateStatus;
 	private String deviceId;
-	private String modelId;
+	private int modelId;
 	
 	public String getFirmwareVersion() {
 		return firmwareVersion;
@@ -33,11 +33,11 @@ public class UpdateSuccessResponse extends Response {
 		this.deviceId = deviceId;
 	}
 
-	public String getModelId() {
+	public int getModelId() {
 		return modelId;
 	}
 
-	public void setModelId(String modelId) {
+	public void setModelId(int modelId) {
 		this.modelId = modelId;
 	}
 
