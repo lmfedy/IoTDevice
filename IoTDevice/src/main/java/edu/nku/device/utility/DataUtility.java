@@ -45,7 +45,6 @@ public class DataUtility {
 		}
 
 		try {
-			//this.conn = DriverManager.getConnection("jdbc:sqlite:" + this.dbName);
 			this.conn = DriverManager.getConnection("jdbc:sqlite::resource:" + 
 			        getClass().getResource("/" + dbName));
 		} catch (SQLException e) {

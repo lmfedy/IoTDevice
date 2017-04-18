@@ -29,6 +29,8 @@ public class IoTDevice {
 	@Context
 	private Application appContext;
 
+	// Discovery Service: Step 2 - Get Discovery Request message from middleware
+	// Return Discovery Response message
 	@GET
 	@Path("/enroll")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -46,6 +48,8 @@ public class IoTDevice {
 		return gson.toJson(oResponse, DiscoveryResponse.class);
 	}
 
+	// Discovery Service: Step 5 - Get accessory code from middleware. Verify against pre-existing key.
+	// Return Code Validation Response with status
 	@POST
 	@Path("/codeValidation")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -80,6 +84,8 @@ public class IoTDevice {
 		return responseString;
 	}
 	
+	// Firmware Distribution: Step 5a Payload with update package
+	// Respond with Update Completion Status
 	@POST
 	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -104,14 +110,8 @@ public class IoTDevice {
 		data.closeConnection();
 
 		UpdateSuccessResponse oResponse = new UpdateSuccessResponse("updateStatus");
-//		if (!device.getAccessoryCode().equals(codePost.getAccessoryCode())) {
-//			oResponse.setDeviceId(device.getDeviceId());
-//			oResponse.setStatus(new StatusCode("ERROR", "Accessory code not valid."));
-//		} else {
-//			oResponse.setStatus(new StatusCode("ACCEPTED", "Accessory Code Accepted"));
-//			oResponse.setPublicKey(crypto.getPublicKeyString());
-//			oResponse.setViaModel(device);
-//		}
+		
+		// TODO: Set Update Success Response values
 
 		String responseString = gson.toJson(oResponse, CodeValidationResponse.class);
 
@@ -123,6 +123,8 @@ public class IoTDevice {
 		return responseString;
 	}
 
+	// Firmware Distribution: Step 4 Request for Device Status
+	// Return Device Status
 	@GET
 	@Path("/status")
 	@Produces(MediaType.APPLICATION_JSON)
