@@ -1,9 +1,13 @@
 package edu.nku.device.server;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 
 import org.eclipse.jetty.server.Server;
@@ -13,6 +17,8 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import com.google.gson.Gson;
+
 import edu.nku.device.resource.IoTDevice;
 import edu.nku.device.resource.IoTDeviceModel;
 import edu.nku.device.utility.CryptoUtility;
@@ -21,13 +27,10 @@ import edu.nku.device.utility.ServiceLogger;
 
 public class DeviceServer {
 	private static final int DEFAULT_PORT = 8092;
-	private static final int DEFAULT_VENDORS = 1;
 	private int serverPort;
-	private int numberVendors;
 
-	public DeviceServer(int serverPort, int numberVendors) throws Exception {
+	public DeviceServer(int serverPort) throws Exception {
 		this.serverPort = serverPort;
-		this.numberVendors = numberVendors;
 
 		Server server = configureServer();
 		server.start();
@@ -40,43 +43,57 @@ public class DeviceServer {
 		DataUtility data = DataUtility.getInstance();
 		CryptoUtility crypto = new CryptoUtility(data, logger);
 
+		Properties prop = new Properties();
+		try {
+			prop.load(getClass().getResourceAsStream("/config.properties"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		IoTDeviceModel device = new IoTDeviceModel(serverPort + "");
 
 		// Randomize Encryption Enabled
 		Random rand = new Random();
 		int result = rand.nextInt(100);
-		boolean encryptionEnabled = result % 2 == 0;
+
+		// 50% chance encryption enabled
+		boolean encryptionEnabled = result <= Integer.parseInt(prop.getProperty("encryptionEnabled"));
 		device.setEncryptionEnabled(encryptionEnabled);
-//		device.setEncryptionEnabled(true);
 
 		// Randomize Device Vendor (Ports Firmware Sites are running on)
-		result = rand.nextInt(numberVendors);
+		result = rand.nextInt(Integer.parseInt(prop.getProperty("numberVendors")));
 		device.setVendor((8080 + result) + "");
 
 		// Randomize Device Model (1-10)
 		result = rand.nextInt(100);
-		device.setModelId(result % 10);
+		device.setModelId(result % Integer.parseInt(prop.getProperty("numberModels")));
 
 		// Randomize Current Firmware Version (1-50??)
-		result = rand.nextInt(25);
+		result = rand.nextInt(Integer.parseInt(prop.getProperty("firmwareVersionStart")));
 		device.setFirmwareVersion(result);
 
+		// Randomize Device Name: Device_XYZ
 		result = rand.nextInt(26);
 		String productSuffix = String.valueOf((char) (result + 64));
 		result = rand.nextInt(26);
 		productSuffix += String.valueOf((char) (result + 64));
 		result = rand.nextInt(26);
 		productSuffix += String.valueOf((char) (result + 64));
-
 		device.setProductName("Device_" + productSuffix);
+
+		Gson gson = new Gson();
+		logger.writeLog("Device Created: " + gson.toJson(device, IoTDeviceModel.class));
 
 		data.storeDeviceMetadata(device);
 
 		Map<String, Object> oPropertyMap = new HashMap<>();
 		oPropertyMap.put("deviceId", serverPort);
-		oPropertyMap.put("percentBusy", 35);
-		oPropertyMap.put("percentReady", 60);
-		oPropertyMap.put("percentNoResponse", 5);
+		oPropertyMap.put("percentBusy", prop.getProperty("percentBusy"));
+		oPropertyMap.put("percentReady", prop.getProperty("percentReady"));
+		oPropertyMap.put("percentNoResponse", prop.getProperty("percentNotReady"));
+		oPropertyMap.put("updateSuccess", prop.getProperty("updateSuccess"));
 		oPropertyMap.put("CryptoUtility", crypto);
 
 		ResourceConfig resourceConfig = new ResourceConfig();
@@ -96,7 +113,6 @@ public class DeviceServer {
 
 	public static void main(String[] args) throws Exception {
 		int serverPort = DEFAULT_PORT;
-		int numberVendors = DEFAULT_VENDORS;
 
 		switch (args.length) {
 		case 1:
@@ -106,17 +122,9 @@ public class DeviceServer {
 				e.printStackTrace();
 			}
 			break;
-		case 2:
-			try {
-				serverPort = Integer.parseInt(args[0]);
-				numberVendors = Integer.parseInt(args[1]);
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			}
-			break;
 		}
 
-		new DeviceServer(serverPort, numberVendors);
+		new DeviceServer(serverPort);
 	}
 
 }

@@ -120,8 +120,8 @@ public class IoTDevice {
 		Random rand = new Random();
 		int result = rand.nextInt(100);
 		
-		 // 85% success rate
-		if (result <= 85)
+		// Success rate
+		if (result <= Integer.parseInt(appContext.getProperties().get("updateSuccess").toString()))
 			updateStatus = new StatusCode("COMPLETE", "Update Complete");
 		else
 			updateStatus = new StatusCode("ERROR", "Update Failed");
