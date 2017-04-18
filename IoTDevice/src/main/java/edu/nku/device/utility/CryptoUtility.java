@@ -171,6 +171,24 @@ public class CryptoUtility {
 	public PublicKey getPublicKey() {
 		return this.sPublicKey;
 	}
+	
+	public String encryptMessage(String message) {
+		try {
+			System.out.println(this.cipher);
+			this.cipher.init(Cipher.ENCRYPT_MODE, this.sPrivateKey);
+			try {
+				logger.writeLog("Crypto - beginning encryption.");
+				return Base64.encodeBase64String(cipher.doFinal(message.getBytes("UTF-8")));
+			} catch (IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
+				logger.writeLog("CryptoUtility.encryptMessage() - Failed to encode string.");
+				e.printStackTrace();
+			}
+		} catch (InvalidKeyException e) {
+			logger.writeLog("CryptoUtility.encryptMessage() - Failed to init cipher.");
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public String encryptMessage(String message, PublicKey publicKey) {
 		try {
@@ -184,6 +202,15 @@ public class CryptoUtility {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public String decryptMessage(String encrypted) throws Exception{
+		this.cipher.init(Cipher.DECRYPT_MODE, this.sPrivateKey);
+		byte[] bts = Hex.decodeHex(encrypted.toCharArray());
+
+		byte[] decrypted = blockCipher(bts,Cipher.DECRYPT_MODE);
+
+		return new String(decrypted,"UTF-8");
 	}
 	
 	private byte[] blockCipher(byte[] bytes, int mode) throws IllegalBlockSizeException, BadPaddingException{
@@ -240,24 +267,6 @@ public class CryptoUtility {
 			toReturn[i+prefix.length] = suffix[i];
 		}
 		return toReturn;
-	}
-
-	public String encryptMessage(String message) {
-		try {
-			System.out.println(this.cipher);
-			this.cipher.init(Cipher.ENCRYPT_MODE, this.sPrivateKey);
-			try {
-				logger.writeLog("Crypto - beginning encryption.");
-				return Base64.encodeBase64String(cipher.doFinal(message.getBytes("UTF-8")));
-			} catch (IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
-				logger.writeLog("CryptoUtility.encryptMessage() - Failed to encode string.");
-				e.printStackTrace();
-			}
-		} catch (InvalidKeyException e) {
-			logger.writeLog("CryptoUtility.encryptMessage() - Failed to init cipher.");
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public String decryptMessage(String message, PublicKey otherPublicKey) {
