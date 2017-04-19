@@ -207,9 +207,7 @@ public class CryptoUtility {
 	public String decryptMessage(String encrypted) throws Exception{
 		this.cipher.init(Cipher.DECRYPT_MODE, this.sPrivateKey);
 		byte[] bts = Hex.decodeHex(encrypted.toCharArray());
-
 		byte[] decrypted = blockCipher(bts,Cipher.DECRYPT_MODE);
-
 		return new String(decrypted,"UTF-8");
 	}
 	

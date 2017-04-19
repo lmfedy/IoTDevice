@@ -114,7 +114,7 @@ public class DeviceServer {
 		
 		HandlerList handlers = new HandlerList();
 		handlers.setHandlers(new Handler[]
-		{ context, new ShutdownHandler("password", false, true) });
+		{ new ShutdownHandler("password", true, true), context });
 		server.setHandler(handlers);
 		
 		return server;

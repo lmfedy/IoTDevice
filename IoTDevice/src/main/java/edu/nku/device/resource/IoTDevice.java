@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.security.PublicKey;
 import java.util.Random;
 import java.util.concurrent.Future;
 
@@ -44,6 +45,7 @@ public class IoTDevice {
 	private static String SERVER_ADDRESS = "http://localhost:7060/updateService/resumeUpdate/";
 	private static int GLOBAL_READ_TIMEOUT = 30000;
 	private static int GLOBAL_CONNECT_TIMEOUT = 10000;
+	private static PublicKey SERVER_PUBLIC_KEY;
 
 	// Discovery Service: Step 2 - Get Discovery Request message from middleware
 	// Return Discovery Response message
@@ -80,6 +82,8 @@ public class IoTDevice {
 		DataUtility data = DataUtility.getInstance();
 		IoTDeviceModel device = data.getDeviceMetadata(deviceNumber);
 		data.closeConnection();
+		
+		SERVER_PUBLIC_KEY = crypto.inflatePublicKeyFromString(codePost.getPubkey());
 
 		CodeValidationResponse oResponse = new CodeValidationResponse("access");
 		if (!device.getAccessoryCode().equals(codePost.getAccessoryCode())) {
@@ -115,7 +119,7 @@ public class IoTDevice {
 
 		if (!pPackage.startsWith("{")) {
 			try {
-				pPackage = crypto.decryptMessage(pPackage);
+				pPackage = crypto.decryptMessage(pPackage, SERVER_PUBLIC_KEY);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
