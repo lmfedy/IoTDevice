@@ -192,14 +192,15 @@ public class IoTDevice {
 		ServiceLogger logger = ServiceLogger.getInstance();
 		new Thread() {
 			@Override
-			public void run() {				
+			public void run() {
 				try {
 					Random rand = new Random();
 					int seconds = rand.nextInt(10);
 					logger.writeLog("Thread Sleep - Waiting for Ready status (" + seconds + " seconds)");
-					Thread.sleep( seconds * 1000);
+					Thread.sleep(seconds * 1000);
 					String serverAddress = SERVER_ADDRESS + id;
 
+					logger.writeLog("Sending Resume Update to: " + SERVER_ADDRESS);
 					ClientConfig configuration = new ClientConfig();
 					configuration.property(ClientProperties.CONNECT_TIMEOUT, GLOBAL_CONNECT_TIMEOUT);
 					configuration.property(ClientProperties.READ_TIMEOUT, GLOBAL_READ_TIMEOUT);
