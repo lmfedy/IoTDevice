@@ -192,11 +192,12 @@ public class IoTDevice {
 		ServiceLogger logger = ServiceLogger.getInstance();
 		new Thread() {
 			@Override
-			public void run() {
-				logger.writeLog("Thread Sleep - Waiting for Ready status");
+			public void run() {				
 				try {
 					Random rand = new Random();
-					Thread.sleep(rand.nextInt(10) * 1000);
+					int seconds = rand.nextInt(10);
+					logger.writeLog("Thread Sleep - Waiting for Ready status (" + seconds + " seconds)");
+					Thread.sleep( seconds * 1000);
 					String serverAddress = SERVER_ADDRESS + id;
 
 					ClientConfig configuration = new ClientConfig();
