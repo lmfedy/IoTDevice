@@ -42,7 +42,7 @@ public class IoTDevice {
 	@Context
 	private Application appContext;
 
-	private static String SERVER_ADDRESS = "http://localhost:7060/updateService/resumeUpdate/";
+	private static String SERVER_ADDRESS = "http://ec2-54-209-7-138.compute-1.amazonaws.com:7060/updateService/resumeUpdate/";
 	private static int GLOBAL_READ_TIMEOUT = 30000;
 	private static int GLOBAL_CONNECT_TIMEOUT = 10000;
 	private static PublicKey SERVER_PUBLIC_KEY;
@@ -82,8 +82,9 @@ public class IoTDevice {
 		DataUtility data = DataUtility.getInstance();
 		IoTDeviceModel device = data.getDeviceMetadata(deviceNumber);
 		data.closeConnection();
-		
-		SERVER_PUBLIC_KEY = crypto.inflatePublicKeyFromString(codePost.getPubkey());
+
+		if (device.getEncryptionEnabled())
+			SERVER_PUBLIC_KEY = crypto.inflatePublicKeyFromString(codePost.getPubkey());
 
 		CodeValidationResponse oResponse = new CodeValidationResponse("access");
 		if (!device.getAccessoryCode().equals(codePost.getAccessoryCode())) {
@@ -91,7 +92,10 @@ public class IoTDevice {
 			oResponse.setStatus(new StatusCode("ERROR", "Accessory code not valid."));
 		} else {
 			oResponse.setStatus(new StatusCode("ACCEPTED", "Accessory Code Accepted"));
-			oResponse.setPublicKey(crypto.getPublicKeyString());
+			if (device.getEncryptionEnabled())
+				oResponse.setPublicKey(crypto.getPublicKeyString());
+			else
+				oResponse.setPublicKey("");
 			oResponse.setViaModel(device);
 		}
 
