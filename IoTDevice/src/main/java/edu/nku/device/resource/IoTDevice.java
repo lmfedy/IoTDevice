@@ -114,7 +114,7 @@ public class IoTDevice {
 	// Respond with Update Completion Status
 	@POST
 	@Path("/update")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.TEXT_PLAIN)
 	public String postUpdatePackage(String pPackage) {
 		ServiceLogger logger = ServiceLogger.getInstance();
 		String deviceNumber = appContext.getProperties().get("deviceId").toString();
