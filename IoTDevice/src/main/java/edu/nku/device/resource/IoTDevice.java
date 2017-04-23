@@ -152,7 +152,7 @@ public class IoTDevice {
 
 		oResponse.setUpdateStatus(updateStatus);
 
-		String responseString = gson.toJson(oResponse, CodeValidationResponse.class);
+		String responseString = gson.toJson(oResponse, UpdateSuccessResponse.class);
 
 		if (device.getEncryptionEnabled()) {
 			responseString = crypto.encryptMessage(responseString);
