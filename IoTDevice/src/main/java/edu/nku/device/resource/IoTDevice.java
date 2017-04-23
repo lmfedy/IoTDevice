@@ -200,7 +200,7 @@ public class IoTDevice {
 					Thread.sleep(seconds * 1000);
 					String serverAddress = SERVER_ADDRESS + id;
 
-					logger.writeLog("Sending Resume Update to: " + SERVER_ADDRESS);
+					logger.writeLog("Sending Resume Update to: " + serverAddress);
 					ClientConfig configuration = new ClientConfig();
 					configuration.property(ClientProperties.CONNECT_TIMEOUT, GLOBAL_CONNECT_TIMEOUT);
 					configuration.property(ClientProperties.READ_TIMEOUT, GLOBAL_READ_TIMEOUT);
