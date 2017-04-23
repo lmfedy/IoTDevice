@@ -42,7 +42,7 @@ public class IoTDevice {
 	@Context
 	private Application appContext;
 
-	private static String SERVER_ADDRESS = "http://ec2-54-209-7-138.compute-1.amazonaws.com:7060/distributionService/updateService/resumeUpdate/";
+	private static String SERVER_ADDRESS = "http://ec2-54-209-7-138.compute-1.amazonaws.com:7060/distributionService/resumeUpdate/";
 	private static int GLOBAL_READ_TIMEOUT = 30000;
 	private static int GLOBAL_CONNECT_TIMEOUT = 10000;
 	private static PublicKey SERVER_PUBLIC_KEY;
